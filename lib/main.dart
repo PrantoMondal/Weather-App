@@ -1,0 +1,21 @@
+import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:weather_app/src/core/config/build_config.dart';
+import 'src/application.dart';
+import 'src/core/config/env_config.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  final envConfig = EnvConfig(
+    appName: packageInfo.appName,
+    appVersion: packageInfo.version,
+    packageName: packageInfo.packageName,
+    baseUrl: "https://demo.speedexbd.net/api/",
+  );
+
+  BuildConfig.instantiate(config: envConfig);
+
+  runApp(const Application());
+}
