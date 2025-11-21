@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:weather_app/src/core/base/base_view.dart';
+import 'package:weather_app/src/core/utils/helper_functions.dart';
 import 'package:weather_app/src/module/home/controllers/home_controller.dart';
 
 class HomeView extends BaseView<HomeController> {
@@ -12,39 +14,37 @@ class HomeView extends BaseView<HomeController> {
 
   @override
   Widget body(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF86B3FF), Color(0xFFE9F3FF)],
+    return Obx(() {
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF86B3FF), Color(0xFFE9F3FF)],
+          ),
         ),
-      ),
-      child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22),
+          padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
 
-              // ---- MENU + COUNTRY ----
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.menu, size: 26, color: Colors.black87),
-                  const SizedBox(width: 15),
+                  const Icon(Icons.pin_drop_outlined, size: 26, color: Colors.black87),
                   Text(
-                    "Bangladesh",
+                    "${controller.weather.value.name}, ${controller.weather.value.sys?.country ?? ""}",
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
+                  const Icon(Icons.search, size: 26, color: Colors.black87),
                 ],
               ),
 
               const SizedBox(height: 15),
-
-              // ---- DATE BADGE ----
               Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -53,7 +53,7 @@ class HomeView extends BaseView<HomeController> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    "10.10.25",
+                    HelperFunctions.formatUnixTimestamp(controller.weather.value.dt),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -65,12 +65,11 @@ class HomeView extends BaseView<HomeController> {
 
               const SizedBox(height: 40),
 
-              // ---- TEMPERATURE SECTION ----
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "69.0",
+                    controller.weather.value.main?.temp.toString() ?? "",
                     style: const TextStyle(
                       fontSize: 100,
                       fontWeight: FontWeight.bold,
@@ -88,7 +87,7 @@ class HomeView extends BaseView<HomeController> {
                   Padding(
                     padding: const EdgeInsets.only(top: 40),
                     child: Text(
-                      "Sunny",
+                      "F",
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ),
@@ -99,7 +98,7 @@ class HomeView extends BaseView<HomeController> {
 
               // ---- DESCRIPTION ----
               Text(
-                "controller.description",
+                controller.weather.value.weather.first.description,
                 style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
               ),
 
@@ -140,8 +139,8 @@ class HomeView extends BaseView<HomeController> {
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   // ---- Widgets ----

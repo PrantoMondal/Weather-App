@@ -55,7 +55,7 @@ abstract class BaseView<Controller extends BaseController> extends GetView<Contr
       appBar: appBar(context),
       floatingActionButtonLocation: floatingActionButtonLocation(),
       floatingActionButton: floatingActionButton(),
-      body: SafeArea(child: body(context)),
+      body: body(context),
       bottomNavigationBar: bottomNavigationBar(),
       drawer: drawer(),
     );
