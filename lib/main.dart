@@ -12,7 +12,7 @@ void main() async {
     appName: packageInfo.appName,
     appVersion: packageInfo.version,
     packageName: packageInfo.packageName,
-    baseUrl: "https://demo.speedexbd.net/api/",
+    baseUrl: "https://api.openweathermap.org/data/2.5",
   );
 
   BuildConfig.instantiate(config: envConfig);

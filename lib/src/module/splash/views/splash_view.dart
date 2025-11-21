@@ -12,12 +12,38 @@ class SplashView extends BaseView<SplashController> {
 
   @override
   Widget body(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/splash_bg.png'),
-          fit: BoxFit.cover,
-        ),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // App Icon
+          Container(
+            height: 120,
+            width: 120,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(Icons.cloud, color: Colors.white, size: 60),
+          ),
+
+          const SizedBox(height: 20),
+
+          // App title
+          const Text(
+            "Weather App",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Loading indicator
+          const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+        ],
       ),
     );
   }

@@ -1,16 +1,34 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PermissionService {
-  void init() async {
-    print("PermissionService called");
-    await requestLocationPermission();
+class PermissionService extends GetxService {
+  static PermissionService get to => Get.find();
+  Future<void> init() async {
+    try {
+      await requestLocationPermission();
+    } catch (e, st) {
+      log("PermissionService.init error: $e\n$st");
+    }
   }
 
   Future<Position> requestLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) throw Exception("Location service is disabled.");
 
+    if (!serviceEnabled) {
+      _showEnableLocationDialog();
+      // Wait until GPS becomes enabled
+      await for (final status in Geolocator.getServiceStatusStream()) {
+        if (status == ServiceStatus.enabled) {
+          break;
+        }
+      }
+    }
+
+    // Now request permission
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -31,6 +49,26 @@ class PermissionService {
     await _saveLatLng(position.latitude, position.longitude);
 
     return position;
+  }
+
+  void _showEnableLocationDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Enable Location"),
+        content: const Text(
+          "Your location service is turned off. Please enable GPS to continue.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
   }
 
   Future<void> _saveLatLng(double lat, double lng) async {
