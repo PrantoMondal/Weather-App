@@ -92,15 +92,18 @@ flutter run
 
 ## 📸 Screenshots
 
-### 🌤 Current Weather
+### 🌤 Current Weather & Forecast
 
-![Current Weather](screenshots/img.png)
-![Forecast](screenshots/img_1.png)
+<div style="display: flex; gap: 10px;">
+  <img src="screenshots/img.png" alt="Current Weather" width="45%" />
+  <img src="screenshots/img_1.png" alt="Forecast" width="45%" />
+</div>
 
 ### 🔍 Search City
 
-![Search Page](screenshots/img_2.png)
-
+<div style="display: flex; justify-content: center;">
+  <img src="screenshots/img_2.png" alt="Search Page" width="40%" />
+</div>
 
 
 ------------------------------------------------------------------------
