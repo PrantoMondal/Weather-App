@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app/src/core/base/base_view.dart';
+import 'package:weather_app/src/core/constants/app_colors.dart';
+import 'package:weather_app/src/core/constants/app_strings.dart';
+import 'package:weather_app/src/core/constants/app_textstyles.dart';
+import 'package:weather_app/src/core/constants/app_values.dart';
 import 'package:weather_app/src/core/utils/helper_functions.dart';
 import 'package:weather_app/src/module/home/controllers/home_controller.dart';
+import 'package:weather_app/src/module/home/widgets/city_search_field.dart';
+import 'package:weather_app/src/module/home/widgets/forecast_card.dart';
 
 class HomeView extends BaseView<HomeController> {
   HomeView({super.key});
@@ -15,6 +22,24 @@ class HomeView extends BaseView<HomeController> {
   @override
   Widget body(BuildContext context) {
     return Obx(() {
+      final feelsLikeTemp = controller.weather.value.main?.feelsLike ?? 0;
+      final unit = controller.tempUnit.value;
+      final tempString = HelperFunctions.formatTemperature(feelsLikeTemp, unit);
+      final main = controller.weather.value.main;
+      final minTemp = HelperFunctions.formatTemperature(main?.tempMin ?? 0, unit);
+      final maxTemp = HelperFunctions.formatTemperature(main?.tempMax ?? 0, unit);
+      final temp = HelperFunctions.formatTemperature(
+        controller.weather.value.main?.temp ?? 0,
+        unit,
+      );
+      final String iconCode = controller.weather.value.weather.isNotEmpty
+          ? controller.weather.value.weather.first.icon
+          : "01d";
+
+      final String description = controller.weather.value.weather.isNotEmpty
+          ? controller.weather.value.weather.first.main
+          : "Loading...";
+
       return Container(
         width: double.infinity,
         height: double.infinity,
@@ -22,165 +47,186 @@ class HomeView extends BaseView<HomeController> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF86B3FF), Color(0xFFE9F3FF)],
+            colors: [AppColors.lightBlue, AppColors.white],
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            controller.getCurrentWeather();
+            controller.getForecastWeather();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 50),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        controller.getCurrentWeather();
+                        controller.getForecastWeather();
+                      },
+                      child: const Icon(
+                        Icons.pin_drop_outlined,
+                        size: AppValues.icon_28,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "${controller.weather.value.name}, ${controller.weather.value.sys?.country ?? ""}",
+                      style: kInter500W18S,
+                    ),
+                    Spacer(),
+                    CitySearchField(homeController: controller),
+                    Switch(
+                      value: controller.tempUnit.value == AppStrings.tempUnitCelsius,
+                      activeTrackColor: AppColors.black,
+                      onChanged: (val) {
+                        controller.changeTempUnit();
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Image.network(
+                  '${AppStrings.iconPrefix}$iconCode${AppStrings.iconSuffix}',
+                  fit: BoxFit.cover,
+                ),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Icon(Icons.pin_drop_outlined, size: 26, color: Colors.black87),
-                  Text(
-                    "${controller.weather.value.name}, ${controller.weather.value.sys?.country ?? ""}",
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  const Icon(Icons.search, size: 26, color: Colors.black87),
-                ],
-              ),
+                Text(temp, style: kInter700W20S.copyWith(fontSize: 80)),
 
-              const SizedBox(height: 15),
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                const SizedBox(height: 10),
+
+                Text("Feels Like: $tempString | $description", style: kInter400W14S),
+                const SizedBox(height: 10),
+                Text("Minimum: $minTemp | Maximum: $maxTemp", style: kInter400W14S),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.network(
+                      'https://cdn-icons-png.flaticon.com/128/16234/16234021.png',
+                      height: 20,
+                    ),
+                    Text(
+                      HelperFunctions.formatTime(
+                        controller.weather.value.sys?.sunrise ?? 0,
+                      ),
+                      style: kInter400W14S,
+                    ),
+                    Text(" | ", style: kInter400W14S),
+                    Image.network(
+                      'https://cdn-icons-png.flaticon.com/128/1852/1852617.png',
+                      color: AppColors.black,
+                      height: 20,
+                    ),
+
+                    Text(
+                      HelperFunctions.formatTime(
+                        controller.weather.value.sys?.sunset ?? 0,
+                      ),
+                      style: kInter400W14S,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Last Updated At: ${HelperFunctions.formatDateTime(controller.weather.value.dt)}",
+                  style: kInter400W14S,
+                ),
+
+                const SizedBox(height: 25),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.25),
+                    color: AppColors.black.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    HelperFunctions.formatUnixTimestamp(controller.weather.value.dt),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _infoTile(
+                        Icons.water_drop,
+                        "${controller.weather.value.main?.humidity ?? 0} %",
+                        "Humidity",
+                      ),
+                      _verticalDivider(),
+                      _infoTile(
+                        Icons.air,
+                        "${controller.weather.value.wind?.speed ?? 0} km/h",
+                        "Wind",
+                      ),
+                      _verticalDivider(),
+                      _infoTile(
+                        Icons.visibility,
+                        "${controller.weather.value.visibility / 1000 ?? 0} km",
+                        "Visibility",
+                      ),
+                    ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 25),
 
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    controller.weather.value.main?.temp.toString() ?? "",
-                    style: const TextStyle(
-                      fontSize: 100,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                SizedBox(
+                  height: 150,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: controller.forecast.value.listData.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final item = controller.forecast.value.listData[index];
+                      final temp = HelperFunctions.formatTemperature(
+                        item.main?.temp ?? 0,
+                        unit,
+                      );
+
+                      return ForecastCard(
+                        day: DateFormat('dd MMM').format(DateTime.parse(item.dtTxt)),
+                        time: DateFormat('hh:mm a').format(DateTime.parse(item.dtTxt)),
+                        condition: item.weather.first.main,
+                        temp: temp,
+                        iconUrl:
+                            '${AppStrings.iconPrefix}${item.weather.first.icon}${AppStrings.iconSuffix}',
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return SizedBox(width: 10);
+                    },
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 25),
-                    child: Text(
-                      "°",
-                      style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: Text(
-                      "F",
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              // ---- DESCRIPTION ----
-              Text(
-                controller.weather.value.weather.first.description,
-                style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
-              ),
-
-              const SizedBox(height: 25),
-
-              // ---- HUMIDITY / WIND / VISIBILITY CARD ----
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _infoTile(Icons.water_drop, "48%", "Humidity"),
-                    _verticalDivider(),
-                    _infoTile(Icons.air, "4km/h", "Wind"),
-                    _verticalDivider(),
-                    _infoTile(Icons.visibility, "1.8km", "Visibility"),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              // ---- FORECAST ----
-              Expanded(
-                child: ListView(
-                  children: [
-                    _forecastItem("21 Jan", "Sunny", "31/21°"),
-                    _forecastItem("22 Jan", "Horizon", "29/21°"),
-                    _forecastItem("23 Jan", "Party Cloud", "21/17°"),
-                  ],
-                ),
-              ),
-            ],
+                const SizedBox(height: 25),
+              ],
+            ),
           ),
         ),
       );
     });
   }
 
-  // ---- Widgets ----
-
   Widget _infoTile(IconData icon, String value, String label) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white, size: 28),
+        Icon(icon, color: AppColors.white, size: 28),
         const SizedBox(height: 6),
         Text(
           value,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: kInter700W16S.copyWith(
+            color: AppColors.white,
+            fontSize: AppValues.fontSize_14,
+          ),
         ),
-        Text(label, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
+        Text(label, style: kInter400W12S.copyWith(color: AppColors.white.withAlpha(200))),
       ],
     );
   }
 
   Widget _verticalDivider() {
-    return Container(height: 40, width: 1, color: Colors.white.withOpacity(0.4));
-  }
-
-  Widget _forecastItem(String day, String condition, String temp) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Text(day, style: const TextStyle(fontSize: 14)),
-          const Spacer(),
-          Row(
-            children: [
-              const Icon(Icons.wb_sunny, size: 18),
-              const SizedBox(width: 6),
-              Text(condition),
-            ],
-          ),
-          const Spacer(),
-          Text(temp, style: const TextStyle(fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
+    return Container(height: 40, width: 1, color: AppColors.white.withAlpha(700));
   }
 }

@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weather_app/src/core/constants/app_strings.dart';
+import 'package:weather_app/src/data/local/preference_manager.dart';
 
 class PermissionService extends GetxService {
+  final PreferenceManager preferenceManager;
+  PermissionService({required this.preferenceManager});
   static PermissionService get to => Get.find();
   Future<void> init() async {
     try {
@@ -20,15 +24,12 @@ class PermissionService extends GetxService {
 
     if (!serviceEnabled) {
       _showEnableLocationDialog();
-      // Wait until GPS becomes enabled
       await for (final status in Geolocator.getServiceStatusStream()) {
         if (status == ServiceStatus.enabled) {
           break;
         }
       }
     }
-
-    // Now request permission
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -46,8 +47,8 @@ class PermissionService extends GetxService {
       desiredAccuracy: LocationAccuracy.high,
     );
 
-    await _saveLatLng(position.latitude, position.longitude);
-
+    await preferenceManager.setDouble(AppStrings.spLatitude, position.latitude);
+    await preferenceManager.setDouble(AppStrings.spLongitude, position.longitude);
     return position;
   }
 
@@ -69,16 +70,5 @@ class PermissionService extends GetxService {
       ),
       barrierDismissible: false,
     );
-  }
-
-  Future<void> _saveLatLng(double lat, double lng) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble("lat", lat);
-    await prefs.setDouble("lng", lng);
-  }
-
-  Future<({double? lat, double? lng})> getSavedLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    return (lat: prefs.getDouble("lat"), lng: prefs.getDouble("lng"));
   }
 }
