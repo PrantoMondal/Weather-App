@@ -57,9 +57,12 @@ class HomeView extends BaseView<HomeController> {
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 50),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppValues.gap,
+            ).copyWith(top: AppValues.container_50),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: AppValues.gapXSmall,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -69,7 +72,7 @@ class HomeView extends BaseView<HomeController> {
                         controller.getCurrentWeather();
                         controller.getForecastWeather();
                       },
-                      child: const Icon(
+                      child: Icon(
                         Icons.pin_drop_outlined,
                         size: AppValues.icon_28,
                         color: AppColors.black,
@@ -85,28 +88,25 @@ class HomeView extends BaseView<HomeController> {
                     Switch(
                       value: controller.tempUnit.value == AppStrings.tempUnitCelsius,
                       activeTrackColor: AppColors.black,
+                      activeThumbImage: AssetImage('assets/images/c.jpg'),
+                      inactiveThumbImage: AssetImage('assets/images/f.jpg'),
                       onChanged: (val) {
                         controller.changeTempUnit();
                       },
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
                 Image.network(
                   '${AppStrings.iconPrefix}$iconCode${AppStrings.iconSuffix}',
                   fit: BoxFit.cover,
                 ),
 
                 Text(temp, style: kInter700W20S.copyWith(fontSize: 80)),
-
-                const SizedBox(height: 10),
-
                 Text("Feels Like: $tempString | $description", style: kInter400W14S),
-                const SizedBox(height: 10),
                 Text("Minimum: $minTemp | Maximum: $maxTemp", style: kInter400W14S),
-                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: AppValues.gap_4,
                   children: [
                     Image.network(
                       'https://cdn-icons-png.flaticon.com/128/16234/16234021.png',
@@ -133,13 +133,11 @@ class HomeView extends BaseView<HomeController> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
                 Text(
                   "Last Updated At: ${HelperFunctions.formatDateTime(controller.weather.value.dt)}",
                   style: kInter400W14S,
                 ),
 
-                const SizedBox(height: 25),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 18),
@@ -171,10 +169,14 @@ class HomeView extends BaseView<HomeController> {
                   ),
                 ),
 
-                const SizedBox(height: 25),
+                SizedBox(height: AppValues.gapXSmall),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text("Forecast", style: kInter700W20S),
+                ),
 
                 SizedBox(
-                  height: 150,
+                  height: 160,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: controller.forecast.value.listData.length,
