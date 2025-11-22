@@ -55,7 +55,7 @@ abstract class BaseView<Controller extends BaseController> extends GetView<Contr
       appBar: appBar(context),
       floatingActionButtonLocation: floatingActionButtonLocation(),
       floatingActionButton: floatingActionButton(),
-      body: SafeArea(child: body(context)),
+      body: body(context),
       bottomNavigationBar: bottomNavigationBar(),
       drawer: drawer(),
     );
@@ -106,7 +106,8 @@ abstract class BaseView<Controller extends BaseController> extends GetView<Contr
 
   Widget? drawer() => null;
 
-  Widget _showLoading() => const Center(child: CircularProgressIndicator());
+  Widget _showLoading() =>
+      const Center(child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2));
 
   FloatingActionButtonLocation? floatingActionButtonLocation() => null;
 
