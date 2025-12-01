@@ -124,6 +124,10 @@ flutter run
      │   │   │   ├─ views/
      │   │   │   └─ widgets/
      │   │   └─ splash/
+     │   │   │   ├─ bindings/
+     │   │   │   ├─ controllers/
+     │   │   │   ├─ views/
+     │   │   │   └─ widgets/
      │   └─ application.dart
      ├─ main.dart
 
