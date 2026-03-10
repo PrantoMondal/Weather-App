@@ -38,6 +38,14 @@ Tech                       Purpose
 
 ------------------------------------------------------------------------
 
+## 📋 Requirements
+
+- Flutter 3.38.0
+- Dart 3.x
+- Android Studio / VS Code
+- OpenWeather API key
+
+------------------------------------------------------------------------
 ## 📦 Project Setup
 
 Follow the steps below to run the project locally.
